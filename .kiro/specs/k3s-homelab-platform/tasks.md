@@ -6,27 +6,27 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
 
 ## Tasks
 
-- [ ] 1. Set up repository structure and testing framework
-  - [ ] 1.1 Create the directory scaffold
+- [x] 1. Set up repository structure and testing framework
+  - [x] 1.1 Create the directory scaffold
     - Create all directories: `bootstrap/cloud-init/`, `bootstrap/ansible/inventory/`, `bootstrap/ansible/roles/{base_hardening,k3s_server_init,k3s_server_join,kubeconfig_export,cluster_smoke_tests,node_cleanup}/tasks/`, `bootstrap/ansible/roles/*/defaults/`, `gitops/clusters/homelab-k3s/flux-system/`, `gitops/infrastructure/{metallb,ingress-nginx,cert-manager,network-policies,crds,longhorn,observability}/`, `gitops/data-services/{cloudnative-pg,minio,redis}/`, `gitops/apps/{agentic,custom}/`
     - Create placeholder `.gitkeep` files in empty leaf directories
     - _Requirements: 10.1, 9.2_
 
-  - [ ] 1.2 Create `.sops.yaml` configuration file at repo root
+  - [x] 1.2 Create `.sops.yaml` configuration file at repo root
     - Define encryption rules per path (e.g., `bootstrap/ansible/group_vars/vault.yaml`)
     - Reference age public key placeholder
     - _Requirements: 2.7_
 
-  - [ ] 1.3 Set up Python test infrastructure
+  - [x] 1.3 Set up Python test infrastructure
     - Create `tests/` directory with `requirements.txt` (hypothesis, pyyaml, pytest)
     - Create `tests/conftest.py` with shared fixtures for loading YAML files
     - _Requirements: Testing Strategy_
 
-  - [ ]* 1.4 Write property test for repository structure completeness
+  - [x] 1.4 Write property test for repository structure completeness
     - **Property 7: Repository structure completeness**
     - **Validates: Requirements 9.2, 10.1**
 
-- [ ] 2. Checkpoint - Verify repo structure
+- [x] 2. Checkpoint - Verify repo structure
   - Ensure all directories exist, test framework runs, ask the user if questions arise.
 
 - [ ] 3. Create cloud-init configurations
@@ -36,7 +36,7 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - Only difference between files: hostname and FQDN (`node-{N}.cluster.arpa`)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8_
 
-  - [ ]* 3.2 Write property test for cloud-init configuration completeness
+  - [ ] 3.2 Write property test for cloud-init configuration completeness
     - **Property 1: Cloud-init configuration completeness**
     - **Validates: Requirements 1.1, 1.2, 1.4, 1.5, 1.6**
 
@@ -55,11 +55,11 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - Set inventory path, roles path, SSH settings, vault password file reference
     - _Requirements: 2.1_
 
-  - [ ]* 4.4 Write property test for Ansible inventory correctness
+  - [ ] 4.4 Write property test for Ansible inventory correctness
     - **Property 2: Ansible inventory maps all nodes correctly**
     - **Validates: Requirements 2.1**
 
-  - [ ]* 4.5 Write property test for Ansible variables schema completeness
+  - [ ] 4.5 Write property test for Ansible variables schema completeness
     - **Property 8: Ansible variables schema completeness**
     - **Validates: Requirements 10.2**
 
@@ -96,11 +96,11 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - Use `kubectl` commands with the exported kubeconfig
     - _Requirements: 2.6_
 
-  - [ ]* 5.6 Write property test for k3s install flags correctness
+  - [ ] 5.6 Write property test for k3s install flags correctness
     - **Property 3: k3s install flags are correct for each role**
     - **Validates: Requirements 2.3, 2.4**
 
-  - [ ]* 5.7 Write property test for kubeconfig endpoint rewrite
+  - [ ] 5.7 Write property test for kubeconfig endpoint rewrite
     - **Property 4: Kubeconfig endpoint rewrite**
     - **Validates: Requirements 2.5**
 
@@ -127,7 +127,7 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - All tasks use conditional checks for idempotency
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-  - [ ]* 7.2 Write property test for cleanup config revert (round-trip)
+  - [ ] 7.2 Write property test for cleanup config revert (round-trip)
     - **Property 9: Cleanup reverts bootstrap kernel/sysctl configuration**
     - **Validates: Requirements 11.4**
 
@@ -141,7 +141,7 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - Add `decryption` config referencing `sops-age` secret
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ]* 9.2 Write property test for Flux Kustomization dependency chain
+  - [ ] 9.2 Write property test for Flux Kustomization dependency chain
     - **Property 5: Flux Kustomization dependency chain and health configuration**
     - **Validates: Requirements 3.2, 3.3**
 
@@ -207,7 +207,7 @@ This plan implements the k3s homelab platform in phases matching the bootstrap f
     - Create shared ingress and certificate templates
     - _Requirements: 6.3, 6.2_
 
-  - [ ]* 14.3 Write property test for workload profile completeness
+  - [ ] 14.3 Write property test for workload profile completeness
     - **Property 6: Workload profile completeness**
     - **Validates: Requirements 6.3**
 

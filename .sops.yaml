@@ -1,0 +1,16 @@
+# SOPS configuration for age encryption
+# Replace AGE-PUBLIC-KEY with your actual age public key
+# Generate a keypair: age-keygen -o age.key
+# Extract public key from the first line of age.key
+creation_rules:
+  # Ansible vault — encrypted variables (tokens, passwords, credentials)
+  - path_regex: bootstrap/ansible/inventory/group_vars/vault\.yaml$
+    age: "AGE-PUBLIC-KEY"
+
+  # Kubernetes Secret manifests in the gitops tree
+  - path_regex: gitops/.*secret.*\.yaml$
+    age: "AGE-PUBLIC-KEY"
+
+  # Catch-all for any SOPS-encrypted files not matched above
+  - path_regex: \.enc\.yaml$
+    age: "AGE-PUBLIC-KEY"
