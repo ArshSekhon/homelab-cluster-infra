@@ -1,0 +1,66 @@
+---
+# MinIO Tenant — distributed mode: 3 servers × 2 volumes each (6 total drives)
+# Erasure coding tolerates loss of up to 2 drives (1 full node).
+# Role: secondary S3 cache for in-cluster consumers only.
+# Primary backups MUST target off-cluster NAS/S3 via backup_s3_endpoint.
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: minio
+  namespace: data-system
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/part-of: data-services
+spec:
+  image: quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z
+  imagePullPolicy: IfNotPresent
+
+  # 3 servers × 2 volumes = 6 drives for erasure coding
+  pools:
+    - name: pool-0
+      servers: 3
+      volumesPerServer: 2
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          storageClassName: longhorn-critical
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              # Capped to fit smallest node (128 GB NVMe)
+              storage: 10Gi
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          cpu: "1"
+          memory: 1Gi
+      # Spread pods across nodes for HA
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: v1.min.io/tenant
+                    operator: In
+                    values:
+                      - minio
+              topologyKey: kubernetes.io/hostname
+
+  # Root credentials — create this Secret before deploying the Tenant.
+  # The Secret must contain keys: config.env with MINIO_ROOT_USER and
+  # MINIO_ROOT_PASSWORD, or use SOPS-encrypted secret in Git.
+  configuration:
+    name: minio-env-configuration
+
+  # Request a cert-manager certificate for TLS (optional — disable for
+  # internal-only traffic behind ingress-nginx TLS termination)
+  requestAutoCert: false
+
+  # Expose the MinIO console
+  exposeServices:
+    console: true
+    minio: true

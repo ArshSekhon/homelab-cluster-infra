@@ -1,0 +1,41 @@
+---
+# Defaults for node_cleanup role
+# Controlled by cleanup_mode ("safe" or "full") passed from cleanup.yaml.
+
+cleanup_mode: safe
+
+# Reboot after cleanup completes (optional, default off)
+cleanup_reboot: false
+
+# k3s uninstall and killall script paths
+k3s_uninstall_script: /usr/local/bin/k3s-uninstall.sh
+k3s_killall_script: /usr/local/bin/k3s-killall.sh
+
+# Directories removed in both safe and full modes
+cleanup_k3s_dirs:
+  - /etc/rancher
+  - /var/lib/rancher
+  - /var/lib/kubelet
+
+# CNI directories removed in both safe and full modes
+cleanup_cni_dirs:
+  - /etc/cni
+  - /var/lib/cni
+
+# Directories removed only in full mode
+cleanup_full_dirs:
+  - /var/lib/longhorn
+  - /var/lib/containerd
+
+# Kernel modules to unload in full mode
+cleanup_kernel_modules:
+  - overlay
+  - br_netfilter
+  - iscsi_tcp
+
+# Config files created by bootstrap that full mode removes
+cleanup_sysctl_files:
+  - /etc/sysctl.d/k8s.conf
+
+cleanup_module_load_files:
+  - /etc/modules-load.d/k8s.conf

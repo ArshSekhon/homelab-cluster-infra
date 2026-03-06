@@ -1,0 +1,45 @@
+---
+# Group variables for k3s server nodes
+# These variables are shared across all nodes in the k3s_servers group
+
+# Cluster identity
+cluster_name: homelab-k3s
+k3s_version: "v1.31.4+k3s1"
+k3s_token: "{{ vault_k3s_token }}"
+
+# API server HA — kube-vip floating VIP
+api_server_vip: "10.0.110.200"
+api_server_port: 6443
+
+# Bundled components to disable (replaced by MetalLB + ingress-nginx)
+disable_components:
+  - traefik
+  - servicelb
+
+# Node admin user (created by cloud-init)
+admin_user: kadmin
+
+# kube-vip version for static pod manifest
+kube_vip_version: "v0.8.7"
+
+# MetalLB L2 address pool range
+metallb_pool_start: "10.0.110.201"
+metallb_pool_end: "10.0.110.219"
+
+# Primary backup target (off-cluster NAS/S3)
+# If backup_s3_endpoint is empty, Ansible emits a warning and skips backup job creation
+backup_s3_endpoint: ""
+backup_bucket: ""
+backup_secret_ref: ""
+
+# Optional in-cluster MinIO (secondary cache only, disabled by default)
+minio_enabled: false
+
+# SOPS age key file path on the operator workstation
+# Generate with: age-keygen -o age.key
+sops_age_key_file: "{{ playbook_dir }}/age.key"
+
+# etcd snapshot configuration (k3s built-in)
+etcd_snapshot_schedule: "0 */6 * * *"
+etcd_snapshot_retention: 5
+etcd_snapshot_dir: "/var/lib/rancher/k3s/server/db/snapshots"

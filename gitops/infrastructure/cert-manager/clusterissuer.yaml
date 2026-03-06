@@ -1,0 +1,38 @@
+---
+# Self-signed issuer used only to bootstrap the root CA certificate
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-root
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+---
+# Root CA certificate signed by the self-signed issuer
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: internal-root-ca
+  secretName: internal-root-ca-tls
+  duration: 87600h # 10 years
+  renewBefore: 8760h # 1 year
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-root
+    kind: Issuer
+    group: cert-manager.io
+---
+# ClusterIssuer backed by the root CA — used by workloads across all namespaces
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: internal-ca
+spec:
+  ca:
+    secretName: internal-root-ca-tls

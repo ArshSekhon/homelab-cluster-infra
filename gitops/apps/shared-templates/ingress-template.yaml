@@ -1,0 +1,39 @@
+---
+# Shared ingress template for *.cluster.arpa services
+# Copy and customize for each application:
+#   - Replace APP_NAME with your application name
+#   - Replace APP_HOST with your subdomain (e.g., myapp.cluster.arpa)
+#   - Replace APP_SERVICE_NAME and APP_SERVICE_PORT with your service details
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-template
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/part-of: apps
+    app.kubernetes.io/component: shared-template
+data:
+  template: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: APP_NAME
+      annotations:
+        cert-manager.io/cluster-issuer: internal-ca
+    spec:
+      ingressClassName: nginx
+      tls:
+        - hosts:
+            - APP_HOST.cluster.arpa
+          secretName: APP_NAME-tls
+      rules:
+        - host: APP_HOST.cluster.arpa
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: APP_SERVICE_NAME
+                    port:
+                      number: APP_SERVICE_PORT

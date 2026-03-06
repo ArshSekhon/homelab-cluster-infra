@@ -1,0 +1,138 @@
+---
+# node_cleanup/tasks/main.yaml
+# Resets a node to pre-bootstrap state. Operates in two modes:
+#   safe  — stops k3s, removes k3s + CNI artifacts (preserves storage/images)
+#   full  — additionally removes Longhorn, containerd, iptables, kernel configs
+#
+# Every task checks for existence before acting so the role is idempotent
+# and produces no errors on an already-clean node.
+#
+# Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6
+
+# -----------------------------------------------------------------------
+# 1. Stop k3s (safe + full)
+# -----------------------------------------------------------------------
+- name: Check for k3s-killall.sh
+  ansible.builtin.stat:
+    path: "{{ k3s_killall_script }}"
+  register: killall_script
+
+- name: Stop k3s processes via killall script
+  ansible.builtin.command: "{{ k3s_killall_script }}"
+  when: killall_script.stat.exists
+  changed_when: true
+
+# -----------------------------------------------------------------------
+# 2. Run k3s uninstall script (safe + full)
+# -----------------------------------------------------------------------
+- name: Check for k3s uninstall script
+  ansible.builtin.stat:
+    path: "{{ k3s_uninstall_script }}"
+  register: uninstall_script
+
+- name: Run k3s uninstall script
+  ansible.builtin.command: "{{ k3s_uninstall_script }}"
+  when: uninstall_script.stat.exists
+  changed_when: true
+
+# -----------------------------------------------------------------------
+# 3. Remove residual k3s directories (safe + full)
+# -----------------------------------------------------------------------
+- name: Remove k3s residual directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_k3s_dirs }}"
+
+# -----------------------------------------------------------------------
+# 4. Remove CNI directories (safe + full)
+# -----------------------------------------------------------------------
+- name: Remove CNI directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_cni_dirs }}"
+
+# -----------------------------------------------------------------------
+# 5. Remove Longhorn and containerd data (full only)
+# -----------------------------------------------------------------------
+- name: Remove full-mode directories (Longhorn, containerd)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_full_dirs }}"
+  when: cleanup_mode == "full"
+
+# -----------------------------------------------------------------------
+# 6. Clean up iptables rules and IPVS tables (full only)
+# -----------------------------------------------------------------------
+- name: Flush iptables rules
+  ansible.builtin.command: "{{ item }}"
+  loop:
+    - iptables -F
+    - iptables -t nat -F
+    - iptables -t mangle -F
+    - iptables -X
+    - ip6tables -F
+    - ip6tables -t nat -F
+    - ip6tables -t mangle -F
+    - ip6tables -X
+  when: cleanup_mode == "full"
+  changed_when: true
+
+- name: Check if ipvsadm is available
+  ansible.builtin.command: which ipvsadm
+  register: ipvsadm_check
+  failed_when: false
+  changed_when: false
+  when: cleanup_mode == "full"
+
+- name: Clear IPVS tables
+  ansible.builtin.command: ipvsadm --clear
+  when: cleanup_mode == "full" and ipvsadm_check.rc == 0
+  changed_when: true
+
+# -----------------------------------------------------------------------
+# 7. Unload kernel modules (full only)
+# -----------------------------------------------------------------------
+- name: Unload kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_kernel_modules }}"
+  when: cleanup_mode == "full"
+  ignore_errors: true
+
+# -----------------------------------------------------------------------
+# 8. Remove sysctl overrides (full only)
+# -----------------------------------------------------------------------
+- name: Remove sysctl override files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_sysctl_files }}"
+  when: cleanup_mode == "full"
+
+- name: Reload sysctl defaults
+  ansible.builtin.command: sysctl --system
+  when: cleanup_mode == "full"
+  changed_when: true
+
+# -----------------------------------------------------------------------
+# 9. Remove module-load configs (full only)
+# -----------------------------------------------------------------------
+- name: Remove module-load config files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ cleanup_module_load_files }}"
+  when: cleanup_mode == "full"
+
+# -----------------------------------------------------------------------
+# 10. Optional reboot
+# -----------------------------------------------------------------------
+- name: Reboot node after cleanup
+  ansible.builtin.reboot:
+    msg: "Rebooting after node cleanup (mode={{ cleanup_mode }})"
+    reboot_timeout: 300
+  when: cleanup_reboot | bool

@@ -1,0 +1,23 @@
+---
+# Conditional: include this resource only when an off-cluster backup target
+# (backup_s3_endpoint) is configured. If no backup target is set, remove this
+# file from kustomization.yaml or use a Kustomize overlay to exclude it.
+#
+# The referenced Secret "cnpg-backup-creds" must contain:
+#   ACCESS_KEY_ID, ACCESS_SECRET_KEY
+# matching the off-cluster NAS/S3 endpoint credentials.
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres-cluster-daily-backup
+  namespace: data-system
+spec:
+  # Daily base backup at 02:00 UTC
+  schedule: "0 2 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: postgres-cluster
+  method: barmanObjectStore
+  immediate: false
+  suspend: false

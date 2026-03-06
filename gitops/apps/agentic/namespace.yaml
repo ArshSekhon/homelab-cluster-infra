@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentic-tools
+  labels:
+    app.kubernetes.io/part-of: apps
+    app.kubernetes.io/component: agentic
+  annotations:
+    storageclass.kubernetes.io/default-class: longhorn

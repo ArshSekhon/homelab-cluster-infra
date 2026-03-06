@@ -1,0 +1,60 @@
+---
+# Workload profile: agentic-realtime
+# For real-time agentic AI workloads requiring low-latency responses
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workload-profile-agentic-realtime
+  namespace: agentic-tools
+  labels:
+    app.kubernetes.io/part-of: apps
+    app.kubernetes.io/component: workload-profile
+    workload-profile: agentic-realtime
+data:
+  cpu-request: "250m"
+  cpu-limit: "1000m"
+  memory-request: "256Mi"
+  memory-limit: "1Gi"
+  liveness-probe: |
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness-probe: |
+    httpGet:
+      path: /readyz
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  pdb-min-available: "1"
+---
+# Workload profile: agentic-batch
+# For batch agentic AI workloads (long-running, higher memory ceiling)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workload-profile-agentic-batch
+  namespace: agentic-tools
+  labels:
+    app.kubernetes.io/part-of: apps
+    app.kubernetes.io/component: workload-profile
+    workload-profile: agentic-batch
+data:
+  cpu-request: "100m"
+  cpu-limit: "2000m"
+  memory-request: "128Mi"
+  memory-limit: "2Gi"
+  liveness-probe: |
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 5
+  pdb-min-available: "0"

@@ -1,0 +1,116 @@
+---
+# k3s_server_init/tasks/main.yaml
+# Bootstraps the first k3s server node with embedded etcd and kube-vip.
+# Requirements: 2.3
+
+# -----------------------------------------------------------------------
+# 1. Install k3s — first server with --cluster-init
+# -----------------------------------------------------------------------
+- name: Check if k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Check installed k3s version
+  ansible.builtin.command: k3s --version
+  register: k3s_installed_version
+  changed_when: false
+  failed_when: false
+  when: k3s_binary.stat.exists
+
+- name: Download k3s install script
+  ansible.builtin.get_url:
+    url: "{{ k3s_install_url }}"
+    dest: /tmp/k3s-install.sh
+    mode: "0755"
+  become: true
+  when: >
+    not k3s_binary.stat.exists or
+    (k3s_installed_version.stdout is defined and k3s_version not in k3s_installed_version.stdout)
+
+- name: Install k3s as init server with embedded etcd
+  ansible.builtin.command:
+    cmd: /tmp/k3s-install.sh
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: >-
+      server
+      --cluster-init
+      --tls-san={{ api_server_vip }}
+      --disable={{ disable_components | join(',') }}
+      --etcd-snapshot-schedule-cron={{ etcd_snapshot_schedule | quote }}
+      --etcd-snapshot-retention={{ etcd_snapshot_retention }}
+      --etcd-snapshot-dir={{ etcd_snapshot_dir }}
+  become: true
+  when: >
+    not k3s_binary.stat.exists or
+    (k3s_installed_version.stdout is defined and k3s_version not in k3s_installed_version.stdout)
+  notify: restart k3s
+
+# -----------------------------------------------------------------------
+# 2. Ensure k3s service is enabled and running
+# -----------------------------------------------------------------------
+- name: Enable and start k3s service
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true
+
+# -----------------------------------------------------------------------
+# 3. Wait for k3s manifests directory to exist
+# -----------------------------------------------------------------------
+- name: Wait for k3s server manifests directory
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/k3s/server/manifests
+    state: present
+    timeout: "{{ k3s_ready_timeout }}"
+  become: true
+
+# -----------------------------------------------------------------------
+# 4. Deploy kube-vip static pod manifest
+# -----------------------------------------------------------------------
+- name: Deploy kube-vip static pod manifest
+  ansible.builtin.template:
+    src: kube-vip.yaml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/kube-vip.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+
+# -----------------------------------------------------------------------
+# 5. Wait for k3s to be fully ready
+# -----------------------------------------------------------------------
+- name: Wait for k3s service to be active
+  ansible.builtin.systemd:
+    name: k3s
+  register: k3s_service
+  until: k3s_service.status.ActiveState == "active"
+  retries: "{{ k3s_ready_retries }}"
+  delay: "{{ k3s_ready_delay }}"
+  become: true
+
+- name: Wait for node to report Ready
+  ansible.builtin.command:
+    cmd: k3s kubectl get node {{ inventory_hostname }} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+  register: node_ready
+  until: node_ready.stdout == "True"
+  retries: "{{ k3s_ready_retries }}"
+  delay: "{{ k3s_ready_delay }}"
+  changed_when: false
+  become: true
+
+# -----------------------------------------------------------------------
+# 6. Store cluster token for join nodes
+# -----------------------------------------------------------------------
+- name: Read cluster token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_node_token_raw
+  become: true
+
+- name: Set cluster token fact for join nodes
+  ansible.builtin.set_fact:
+    k3s_node_token: "{{ k3s_node_token_raw.content | b64decode | trim }}"

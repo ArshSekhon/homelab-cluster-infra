@@ -1,0 +1,88 @@
+---
+# cluster_smoke_tests/tasks/main.yaml
+# Validates cluster health after k3s bootstrap completes.
+# Runs on localhost using the exported kubeconfig.
+# Requirements: 2.6
+
+# -----------------------------------------------------------------------
+# 1. Verify all nodes are Ready
+# -----------------------------------------------------------------------
+- name: Wait for all nodes to report Ready
+  ansible.builtin.command:
+    cmd: >-
+      kubectl get nodes
+      --kubeconfig={{ kubeconfig_path }}
+      --no-headers
+      -o custom-columns=STATUS:.status.conditions[-1].type,READY:.status.conditions[-1].status
+  register: node_status
+  retries: "{{ smoke_test_retries }}"
+  delay: "{{ smoke_test_delay }}"
+  until:
+    - node_status.rc == 0
+    - node_status.stdout_lines | length == expected_node_count
+    - node_status.stdout_lines | select('search', 'Ready\\s+True') | list | length == expected_node_count
+  changed_when: false
+
+- name: Display node status
+  ansible.builtin.debug:
+    msg: "{{ node_status.stdout_lines }}"
+
+# -----------------------------------------------------------------------
+# 2. Verify CoreDNS pods are running
+# -----------------------------------------------------------------------
+- name: Wait for CoreDNS pods to be Running
+  ansible.builtin.command:
+    cmd: >-
+      kubectl get pods
+      --kubeconfig={{ kubeconfig_path }}
+      -n kube-system
+      -l k8s-app=kube-dns
+      --no-headers
+      -o custom-columns=NAME:.metadata.name,STATUS:.status.phase
+  register: coredns_status
+  retries: "{{ smoke_test_retries }}"
+  delay: "{{ smoke_test_delay }}"
+  until:
+    - coredns_status.rc == 0
+    - coredns_status.stdout_lines | length > 0
+    - coredns_status.stdout_lines | reject('search', 'Running') | list | length == 0
+  changed_when: false
+
+- name: Display CoreDNS pod status
+  ansible.builtin.debug:
+    msg: "{{ coredns_status.stdout_lines }}"
+
+# -----------------------------------------------------------------------
+# 3. Verify all kube-system pods are healthy
+# -----------------------------------------------------------------------
+- name: Wait for all kube-system pods to be healthy
+  ansible.builtin.command:
+    cmd: >-
+      kubectl get pods
+      --kubeconfig={{ kubeconfig_path }}
+      -n kube-system
+      --no-headers
+      -o custom-columns=NAME:.metadata.name,STATUS:.status.phase
+  register: kube_system_status
+  retries: "{{ smoke_test_retries }}"
+  delay: "{{ smoke_test_delay }}"
+  until:
+    - kube_system_status.rc == 0
+    - kube_system_status.stdout_lines | length > 0
+    - kube_system_status.stdout_lines | reject('search', 'Running\\|Succeeded') | list | length == 0
+  changed_when: false
+
+- name: Display kube-system pod status
+  ansible.builtin.debug:
+    msg: "{{ kube_system_status.stdout_lines }}"
+
+# -----------------------------------------------------------------------
+# 4. Summary
+# -----------------------------------------------------------------------
+- name: Smoke tests passed
+  ansible.builtin.debug:
+    msg: >-
+      Cluster smoke tests passed:
+      {{ expected_node_count }} nodes Ready,
+      CoreDNS running,
+      all kube-system pods healthy.

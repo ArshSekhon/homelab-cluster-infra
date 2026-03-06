@@ -1,0 +1,17 @@
+---
+all:
+  children:
+    k3s_servers:
+      hosts:
+        dynamind-node-0:
+          ansible_host: 10.0.110.10
+          node_fqdn: node-0.cluster.arpa
+          k3s_role: init
+        dynamind-node-1:
+          ansible_host: 10.0.110.11
+          node_fqdn: node-1.cluster.arpa
+          k3s_role: join
+        dynamind-node-2:
+          ansible_host: 10.0.110.12
+          node_fqdn: node-2.cluster.arpa
+          k3s_role: join

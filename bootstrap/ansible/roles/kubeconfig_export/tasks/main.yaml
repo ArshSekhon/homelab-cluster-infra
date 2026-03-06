@@ -1,0 +1,42 @@
+---
+# kubeconfig_export/tasks/main.yaml
+# Retrieves the kubeconfig from the init node and rewrites the API server
+# endpoint to the HA VIP address for use on the operator workstation.
+# Requirements: 2.5
+
+# -----------------------------------------------------------------------
+# 1. Fetch kubeconfig from the k3s node
+# -----------------------------------------------------------------------
+- name: Read kubeconfig from k3s node
+  ansible.builtin.slurp:
+    src: "{{ kubeconfig_remote_path }}"
+  register: kubeconfig_raw
+  become: true
+
+# -----------------------------------------------------------------------
+# 2. Rewrite the API server endpoint to the VIP
+# -----------------------------------------------------------------------
+- name: Rewrite server endpoint to HA VIP
+  ansible.builtin.set_fact:
+    kubeconfig_content: >-
+      {{ kubeconfig_raw.content | b64decode |
+         regex_replace('https://127\.0\.0\.1:\d+', 'https://' + api_server_vip + ':' + (api_server_port | string)) }}
+
+# -----------------------------------------------------------------------
+# 3. Save kubeconfig to the operator workstation
+# -----------------------------------------------------------------------
+- name: Ensure local kubeconfig directory exists
+  ansible.builtin.file:
+    path: "{{ kubeconfig_local_path | dirname }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  become: false
+
+- name: Write kubeconfig to operator workstation
+  ansible.builtin.copy:
+    content: "{{ kubeconfig_content }}"
+    dest: "{{ kubeconfig_local_path }}"
+    mode: "0600"
+  delegate_to: localhost
+  become: false

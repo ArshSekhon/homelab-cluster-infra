@@ -1,0 +1,13 @@
+---
+# kubeconfig_export/defaults/main.yaml
+# Role-specific defaults — group_vars override these where defined.
+
+# API server endpoint for kubeconfig rewrite
+api_server_vip: "10.0.110.200"
+api_server_port: 6443
+
+# Path on the operator workstation where the kubeconfig will be saved
+kubeconfig_local_path: "{{ lookup('env', 'HOME') }}/.kube/config"
+
+# Source kubeconfig on the k3s node
+kubeconfig_remote_path: /etc/rancher/k3s/k3s.yaml

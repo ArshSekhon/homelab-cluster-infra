@@ -1,0 +1,33 @@
+---
+# k3s_server_init/defaults/main.yaml
+# Role-specific defaults — group_vars override these where defined.
+
+# k3s install
+k3s_version: "v1.31.4+k3s1"
+k3s_install_url: "https://get.k3s.io"
+
+# Cluster networking
+api_server_vip: "10.0.110.200"
+api_server_port: 6443
+
+# Components to disable (replaced by Flux-managed alternatives)
+disable_components:
+  - traefik
+  - servicelb
+
+# kube-vip static pod
+kube_vip_version: "v0.8.7"
+kube_vip_image: "ghcr.io/kube-vip/kube-vip"
+
+# Network interface for kube-vip ARP/L2 — auto-detected if not set
+kube_vip_interface: "{{ ansible_default_ipv4.interface }}"
+
+# etcd snapshot settings
+etcd_snapshot_schedule: "0 */6 * * *"
+etcd_snapshot_retention: 5
+etcd_snapshot_dir: "/var/lib/rancher/k3s/server/db/snapshots"
+
+# Readiness wait settings
+k3s_ready_timeout: 120
+k3s_ready_delay: 5
+k3s_ready_retries: 24

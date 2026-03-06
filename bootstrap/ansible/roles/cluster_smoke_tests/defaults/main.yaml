@@ -1,0 +1,14 @@
+---
+# cluster_smoke_tests/defaults/main.yaml
+# Role-specific defaults — group_vars override these where defined.
+
+# Path to the kubeconfig on the operator workstation
+kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"
+
+# Expected number of nodes in the cluster
+expected_node_count: 3
+
+# Timeout settings for readiness checks (seconds)
+smoke_test_timeout: 120
+smoke_test_delay: 10
+smoke_test_retries: 12

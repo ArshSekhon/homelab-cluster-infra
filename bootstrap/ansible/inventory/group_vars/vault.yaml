@@ -1,0 +1,17 @@
+---
+# Encrypted secrets for k3s cluster bootstrap
+#
+# This file MUST be encrypted with SOPS before committing to Git.
+# Encryption uses age keys as configured in .sops.yaml at the repo root.
+#
+# To encrypt:
+#   sops --encrypt --in-place bootstrap/ansible/inventory/group_vars/vault.yaml
+#
+# To edit (decrypts in-place, re-encrypts on save):
+#   sops bootstrap/ansible/inventory/group_vars/vault.yaml
+#
+# To decrypt (for debugging only — do NOT commit the decrypted file):
+#   sops --decrypt bootstrap/ansible/inventory/group_vars/vault.yaml
+
+# k3s cluster join token — shared secret for node authentication
+vault_k3s_token: "CHANGE_ME_BEFORE_ENCRYPTING"

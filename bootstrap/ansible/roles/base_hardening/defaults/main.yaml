@@ -1,0 +1,20 @@
+---
+# Defaults for base_hardening role
+# These mirror the cloud-init baseline and ensure idempotent state on every run.
+
+hardening_packages:
+  - curl
+  - jq
+  - nfs-common
+  - open-iscsi
+  - qemu-guest-agent
+
+hardening_kernel_modules:
+  - overlay
+  - br_netfilter
+  - iscsi_tcp
+
+hardening_sysctls:
+  net.bridge.bridge-nf-call-iptables: 1
+  net.bridge.bridge-nf-call-ip6tables: 1
+  net.ipv4.ip_forward: 1

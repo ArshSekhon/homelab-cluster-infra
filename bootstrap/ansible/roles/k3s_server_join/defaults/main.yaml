@@ -1,0 +1,29 @@
+---
+# k3s_server_join/defaults/main.yaml
+# Role-specific defaults — group_vars override these where defined.
+
+# k3s install
+k3s_version: "v1.31.4+k3s1"
+k3s_install_url: "https://get.k3s.io"
+
+# Cluster networking
+api_server_vip: "10.0.110.200"
+api_server_port: 6443
+
+# Cluster token — must be provided via group_vars, vault, or set_fact from init
+k3s_token: ""
+
+# Components to disable (same as init — replaced by Flux-managed alternatives)
+disable_components:
+  - traefik
+  - servicelb
+
+# etcd snapshot settings
+etcd_snapshot_schedule: "0 */6 * * *"
+etcd_snapshot_retention: 5
+etcd_snapshot_dir: "/var/lib/rancher/k3s/server/db/snapshots"
+
+# Readiness wait settings
+k3s_ready_timeout: 120
+k3s_ready_delay: 10
+k3s_ready_retries: 30

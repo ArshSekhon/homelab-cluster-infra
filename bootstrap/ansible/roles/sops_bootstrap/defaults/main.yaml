@@ -1,0 +1,17 @@
+---
+# sops_bootstrap/defaults/main.yaml
+# Defaults for SOPS age key bootstrap into Kubernetes.
+
+# Path to the age private key file on the operator workstation.
+# Generate with: age-keygen -o age.key
+sops_age_key_file: "{{ playbook_dir }}/age.key"
+
+# Kubernetes namespace where the SOPS decryption secret is created.
+# Flux expects this in the flux-system namespace.
+sops_namespace: flux-system
+
+# Name of the Kubernetes secret holding the age key.
+sops_secret_name: sops-age
+
+# Key name inside the secret (matches Flux decryption config).
+sops_secret_key: age.agekey

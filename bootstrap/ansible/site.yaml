@@ -1,0 +1,62 @@
+---
+# site.yaml — Main orchestration playbook for k3s cluster bootstrap
+#
+# Usage:
+#   1. Init first server:   ansible-playbook site.yaml --limit node-0
+#   2. Join remaining:      ansible-playbook site.yaml --limit node-1,node-2
+
+# Play 1: Base OS hardening on all k3s servers
+- name: Base OS hardening
+  hosts: k3s_servers
+  become: true
+  roles:
+    - base_hardening
+
+# Play 2: Initialize first k3s server (embedded etcd)
+- name: Initialize k3s first server
+  hosts: k3s_servers
+  become: true
+  when: k3s_role == "init"
+  roles:
+    - k3s_server_init
+
+# Play 3: Join additional k3s servers (one at a time)
+- name: Join k3s additional servers
+  hosts: k3s_servers
+  become: true
+  serial: 1
+  when: k3s_role == "join"
+  roles:
+    - k3s_server_join
+
+# Play 4: Export and rewrite kubeconfig from init node
+- name: Export kubeconfig
+  hosts: k3s_servers
+  become: true
+  when: k3s_role == "init"
+  roles:
+    - kubeconfig_export
+
+# Play 5: Bootstrap SOPS age decryption secret for Flux
+# Must run after k3s is up but before Flux bootstrap.
+# Requires age.key on the operator workstation (see sops_age_key_file variable).
+- name: Bootstrap SOPS age secret
+  hosts: k3s_servers
+  become: true
+  when: k3s_role == "init"
+  roles:
+    - sops_bootstrap
+
+# ---------------------------------------------------------------------------
+# Flux bootstrap (manual step)
+# ---------------------------------------------------------------------------
+# After this playbook completes, bootstrap Flux CD manually:
+#
+#   flux bootstrap github \
+#     --owner=<github-user> \
+#     --repository=<repo-name> \
+#     --branch=main \
+#     --path=gitops/clusters/homelab-k3s \
+#     --personal
+#
+# Flux will use the sops-age secret created above for SOPS decryption.

@@ -1,0 +1,32 @@
+---
+# Shared certificate template for *.cluster.arpa services
+# Copy and customize for each application:
+#   - Replace APP_NAME with your application name
+#   - Replace APP_HOST with your subdomain (e.g., myapp.cluster.arpa)
+#   - Replace APP_NAMESPACE with the target namespace
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: certificate-template
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/part-of: apps
+    app.kubernetes.io/component: shared-template
+data:
+  template: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: APP_NAME-tls
+      namespace: APP_NAMESPACE
+    spec:
+      secretName: APP_NAME-tls
+      duration: 8760h
+      renewBefore: 720h
+      commonName: APP_HOST.cluster.arpa
+      dnsNames:
+        - APP_HOST.cluster.arpa
+      issuerRef:
+        name: internal-ca
+        kind: ClusterIssuer
+        group: cert-manager.io

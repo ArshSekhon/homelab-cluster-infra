@@ -1,0 +1,34 @@
+---
+# cleanup.yaml — Node cleanup and reset playbook
+#
+# Resets target nodes to a pre-bootstrap state for re-provisioning
+# or decommissioning.
+#
+# Usage:
+#   Safe mode (default — preserves storage data and images):
+#     ansible-playbook cleanup.yaml --limit <target-nodes>
+#
+#   Full mode (complete reset, requires explicit confirmation):
+#     ansible-playbook cleanup.yaml --limit <target-nodes> \
+#       --extra-vars "cleanup_mode=full confirm_full_cleanup=yes"
+#
+# Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6
+
+- name: Node cleanup and reset
+  hosts: k3s_servers
+  become: true
+  vars:
+    cleanup_mode: safe
+    confirm_full_cleanup: "no"
+
+  pre_tasks:
+    - name: Abort full cleanup without explicit confirmation
+      ansible.builtin.fail:
+        msg: >-
+          Full cleanup requested but not confirmed. To proceed, pass
+          --extra-vars "confirm_full_cleanup=yes". This will remove ALL
+          k3s artifacts, storage data, container images, and kernel configs.
+      when: cleanup_mode == "full" and confirm_full_cleanup != "yes"
+
+  roles:
+    - node_cleanup

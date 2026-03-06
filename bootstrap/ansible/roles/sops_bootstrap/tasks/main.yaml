@@ -1,0 +1,90 @@
+---
+# sops_bootstrap/tasks/main.yaml
+# Creates the SOPS age decryption secret in the flux-system namespace.
+# Must run after k3s is up but before Flux bootstrap.
+# Requirements: 2.7, 3.1
+
+# -----------------------------------------------------------------------
+# 1. Validate that the age key file exists on the operator workstation
+# -----------------------------------------------------------------------
+- name: Verify age key file exists
+  ansible.builtin.stat:
+    path: "{{ sops_age_key_file }}"
+  register: age_key_stat
+  delegate_to: localhost
+  become: false
+
+- name: Fail if age key file is missing
+  ansible.builtin.fail:
+    msg: >-
+      Age key file not found at {{ sops_age_key_file }}.
+      Generate one with: age-keygen -o {{ sops_age_key_file }}
+  when: not age_key_stat.stat.exists
+
+# -----------------------------------------------------------------------
+# 2. Ensure the flux-system namespace exists
+# -----------------------------------------------------------------------
+- name: Check if flux-system namespace exists
+  ansible.builtin.command:
+    cmd: k3s kubectl get namespace {{ sops_namespace }}
+  register: ns_check
+  changed_when: false
+  failed_when: false
+  become: true
+
+- name: Create flux-system namespace
+  ansible.builtin.command:
+    cmd: k3s kubectl create namespace {{ sops_namespace }}
+  become: true
+  when: ns_check.rc != 0
+
+# -----------------------------------------------------------------------
+# 3. Create the sops-age secret (idempotent)
+# -----------------------------------------------------------------------
+- name: Check if sops-age secret already exists
+  ansible.builtin.command:
+    cmd: >-
+      k3s kubectl get secret {{ sops_secret_name }}
+      --namespace={{ sops_namespace }}
+  register: secret_check
+  changed_when: false
+  failed_when: false
+  become: true
+
+- name: Copy age key to target node
+  ansible.builtin.copy:
+    src: "{{ sops_age_key_file }}"
+    dest: /tmp/age.key
+    mode: "0600"
+  become: true
+  when: secret_check.rc != 0
+
+- name: Create sops-age Kubernetes secret
+  ansible.builtin.command:
+    cmd: >-
+      k3s kubectl create secret generic {{ sops_secret_name }}
+      --namespace={{ sops_namespace }}
+      --from-file={{ sops_secret_key }}=/tmp/age.key
+  become: true
+  when: secret_check.rc != 0
+
+- name: Remove temporary age key from node
+  ansible.builtin.file:
+    path: /tmp/age.key
+    state: absent
+  become: true
+  when: secret_check.rc != 0
+
+# -----------------------------------------------------------------------
+# 4. Verify the secret was created
+# -----------------------------------------------------------------------
+- name: Verify sops-age secret exists
+  ansible.builtin.command:
+    cmd: >-
+      k3s kubectl get secret {{ sops_secret_name }}
+      --namespace={{ sops_namespace }}
+      -o jsonpath='{.metadata.name}'
+  register: secret_verify
+  changed_when: false
+  become: true
+  failed_when: secret_verify.stdout != sops_secret_name
