@@ -4,7 +4,7 @@ Reproducible 3-node HA Kubernetes platform built on k3s with embedded etcd, mana
 
 ## Architecture
 
-Three `dynamind-node-{0,1,2}` machines on VLAN 110 (`10.0.110.0/24`), each with an Intel i5-10600T, 16 GiB RAM, and NVMe storage. The platform bootstraps in three layers:
+Three `node-{0,1,2}` machines on VLAN 110 (`10.0.110.0/24`), each with an Intel i5-10600T, 16 GiB RAM, and NVMe storage. The platform bootstraps in three layers:
 
 1. **cloud-init** — first-boot OS baseline (hostname, users, kernel modules, sysctls, swap, packages)
 2. **Ansible** — OS hardening, k3s installation, HA cluster formation, SOPS secret bootstrap
@@ -116,10 +116,10 @@ sops bootstrap/ansible/inventory/group_vars/vault.yaml
 cd bootstrap/ansible
 
 # Bootstrap first server (node-0)
-ansible-playbook site.yaml --limit dynamind-node-0
+ansible-playbook site.yaml --limit node-0
 
 # Join remaining servers
-ansible-playbook site.yaml --limit dynamind-node-1,dynamind-node-2
+ansible-playbook site.yaml --limit node-1,node-2
 
 # Validate cluster
 ansible-playbook validate.yaml

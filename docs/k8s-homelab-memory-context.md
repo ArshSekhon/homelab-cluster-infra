@@ -16,17 +16,17 @@ Build a 3-node Kubernetes homelab on Ubuntu 24.04.4 LTS systems connected throug
 
 ### Nodes
 
-1. `dynamind-node-0`
+1. `node-0`
    - CPU: Intel Core i5-10600T @ 2.40GHz
    - RAM: 16 GiB
    - Disk: Patriot M.2 P320 512GB NVMe (`/dev/nvme0n1`)
    - NIC: `eno2` (Intel I219-LM)
-2. `dynamind-node-1`
+2. `node-1`
    - CPU: Intel Core i5-10600T @ 2.40GHz
    - RAM: 16 GiB
    - Disk: KIOXIA KXG60ZNV256G 256GB NVMe (`/dev/nvme0n1`)
    - NIC: `eno2` (Intel I219-LM)
-3. `dynamind-node-2`
+3. `node-2`
    - CPU: Intel Core i5-10600T @ 2.40GHz
    - RAM: 16 GiB
    - Disk: Samsung PM991 128GB NVMe (`/dev/nvme0n1`)
@@ -68,13 +68,13 @@ Build a 3-node Kubernetes homelab on Ubuntu 24.04.4 LTS systems connected throug
 
 ### DHCP Static Mappings (OPNsense)
 
-- `dynamind-node-0`
+- `node-0`
   - MAC: `a4:bb:6d:73:fa:ed`
   - Reserved IP: `10.0.110.10`
-- `dynamind-node-1`
+- `node-1`
   - MAC: `a4:bb:6d:73:ff:5b`
   - Reserved IP: `10.0.110.11`
-- `dynamind-node-2`
+- `node-2`
   - MAC: `a4:bb:6d:73:ff:97`
   - Reserved IP: `10.0.110.12`
 
@@ -85,9 +85,9 @@ Build a 3-node Kubernetes homelab on Ubuntu 24.04.4 LTS systems connected throug
 - `node-1.cluster.arpa` -> `10.0.110.11`
 - `node-2.cluster.arpa` -> `10.0.110.12`
 - Naming note:
-  - `node-0` corresponds to `dynamind-node-0`
-  - `node-1` corresponds to `dynamind-node-1`
-  - `node-2` corresponds to `dynamind-node-2`
+  - `node-0` corresponds to `node-0`
+  - `node-1` corresponds to `node-1`
+  - `node-2` corresponds to `node-2`
 
 ### Inference
 

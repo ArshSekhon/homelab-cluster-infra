@@ -8,7 +8,7 @@ This design describes a reproducible 3-node HA Kubernetes platform built on k3s 
 2. **Ansible** handles OS hardening, k3s installation, cluster formation, and validation
 3. **Flux CD** handles all in-cluster resource delivery via GitOps
 
-The platform targets the three `dynamind-node-{0,1,2}` machines on VLAN 110 (`10.0.110.0/24`), each with Intel i5-10600T, 16 GiB RAM, and NVMe storage (512/256/128 GB respectively). All post-bootstrap cluster state flows through Git.
+The platform targets the three `node-{0,1,2}` machines on VLAN 110 (`10.0.110.0/24`), each with Intel i5-10600T, 16 GiB RAM, and NVMe storage (512/256/128 GB respectively). All post-bootstrap cluster state flows through Git.
 
 ### Design Decisions
 
@@ -460,15 +460,15 @@ all:
   children:
     k3s_servers:
       hosts:
-        dynamind-node-0:
+        node-0:
           ansible_host: 10.0.110.10
           node_fqdn: node-0.cluster.arpa
           k3s_role: init
-        dynamind-node-1:
+        node-1:
           ansible_host: 10.0.110.11
           node_fqdn: node-1.cluster.arpa
           k3s_role: join
-        dynamind-node-2:
+        node-2:
           ansible_host: 10.0.110.12
           node_fqdn: node-2.cluster.arpa
           k3s_role: join
@@ -590,7 +590,7 @@ The following properties are derived from the acceptance criteria prework analys
 
 ### Property 2: Ansible inventory maps all nodes correctly
 
-*For any* node in the set {dynamind-node-0, dynamind-node-1, dynamind-node-2}, the Ansible inventory SHALL contain a host entry with the correct fixed IP address (`10.0.110.{10,11,12}` respectively), the correct FQDN (`node-{0,1,2}.cluster.arpa`), and a k3s role assignment (`init` for node-0, `join` for node-1 and node-2).
+*For any* node in the set {node-0, node-1, node-2}, the Ansible inventory SHALL contain a host entry with the correct fixed IP address (`10.0.110.{10,11,12}` respectively), the correct FQDN (`node-{0,1,2}.cluster.arpa`), and a k3s role assignment (`init` for node-0, `join` for node-1 and node-2).
 
 **Validates: Requirements 2.1**
 

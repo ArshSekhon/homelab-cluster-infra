@@ -3,7 +3,7 @@
 Feature: k3s-homelab-platform, Property 2: Ansible inventory maps all nodes correctly
 Validates: Requirements 2.1
 
-For any node in the set {dynamind-node-0, dynamind-node-1, dynamind-node-2},
+For any node in the set {node-0, node-1, node-2},
 the Ansible inventory SHALL contain a host entry with the correct fixed IP
 address (10.0.110.{10,11,12} respectively), the correct FQDN
 (node-{0,1,2}.cluster.arpa), and a k3s role assignment (init for node-0,
@@ -21,17 +21,17 @@ from conftest import PROJECT_ROOT
 # ---------------------------------------------------------------------------
 
 NODE_DEFINITIONS = {
-    "dynamind-node-0": {
+    "node-0": {
         "ansible_host": "10.0.110.10",
         "node_fqdn": "node-0.cluster.arpa",
         "k3s_role": "init",
     },
-    "dynamind-node-1": {
+    "node-1": {
         "ansible_host": "10.0.110.11",
         "node_fqdn": "node-1.cluster.arpa",
         "k3s_role": "join",
     },
-    "dynamind-node-2": {
+    "node-2": {
         "ansible_host": "10.0.110.12",
         "node_fqdn": "node-2.cluster.arpa",
         "k3s_role": "join",

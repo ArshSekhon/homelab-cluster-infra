@@ -2,14 +2,14 @@
 
 ## Introduction
 
-This document specifies the requirements for a reproducible, HA 3-node k3s Kubernetes platform on the `dynamind-node-{0,1,2}` homelab cluster. The platform uses cloud-init for first-boot baseline, Ansible for OS hardening and k3s bootstrap, and a GitOps controller for all in-cluster platform and application delivery. Target workloads include agentic tools, custom applications, ingress/reverse proxy, object storage, and databases with durable storage and off-cluster backups.
+This document specifies the requirements for a reproducible, HA 3-node k3s Kubernetes platform on the `node-{0,1,2}` homelab cluster. The platform uses cloud-init for first-boot baseline, Ansible for OS hardening and k3s bootstrap, and a GitOps controller for all in-cluster platform and application delivery. Target workloads include agentic tools, custom applications, ingress/reverse proxy, object storage, and databases with durable storage and off-cluster backups.
 
 Reference: [`docs/k8s-homelab-memory-context.md`](../../docs/k8s-homelab-memory-context.md) for hardware, network, and environment details.
 
 ## Glossary
 
 - **Platform**: The complete Kubernetes cluster including all infrastructure services, storage, data services, and application foundations deployed across the three homelab nodes.
-- **Node**: One of the three physical machines (`dynamind-node-0`, `dynamind-node-1`, `dynamind-node-2`) running Ubuntu 24.04.4 LTS.
+- **Node**: One of the three physical machines (`node-0`, `node-1`, `node-2`) running Ubuntu 24.04.4 LTS.
 - **Cloud_Init**: The cloud-init subsystem responsible for first-boot OS configuration on each Node.
 - **Ansible_Controller**: The Ansible automation subsystem running on the operator workstation that configures Nodes and bootstraps k3s.
 - **K3s_Cluster**: The 3-server HA k3s Kubernetes cluster with embedded etcd running across all Nodes, with a floating API VIP (`10.0.110.200`) for HA API access.
