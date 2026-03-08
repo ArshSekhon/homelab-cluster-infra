@@ -20,7 +20,7 @@ kube_vip_version: "v0.8.7"
 kube_vip_image: "ghcr.io/kube-vip/kube-vip"
 
 # Network interface for kube-vip ARP/L2 — auto-detected if not set
-kube_vip_interface: "{{ ansible_default_ipv4.interface }}"
+kube_vip_interface: "{{ ansible_facts['default_ipv4']['interface'] }}"
 
 # etcd snapshot settings
 etcd_snapshot_schedule: "0 */6 * * *"

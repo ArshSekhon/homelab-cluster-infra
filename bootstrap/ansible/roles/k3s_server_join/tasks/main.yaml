@@ -4,17 +4,24 @@
 # Requirements: 2.4
 
 # -----------------------------------------------------------------------
-# 1. Resolve cluster token — prefer runtime fact from init, fall back to var
+# 1. Fetch cluster token from init node via API VIP
 # -----------------------------------------------------------------------
-- name: Resolve cluster join token
+- name: Fetch node token from init node
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: _remote_token
+  delegate_to: node-0
+  become: true
+
+- name: Set join token fact
   ansible.builtin.set_fact:
-    _join_token: "{{ k3s_node_token | default(k3s_token) }}"
+    _join_token: "{{ _remote_token.content | b64decode | trim }}"
 
 - name: Fail if no cluster token is available
   ansible.builtin.fail:
     msg: >-
-      No cluster token available. Either run k3s_server_init first (sets
-      k3s_node_token fact) or provide k3s_token in group_vars / vault.
+      No cluster token available. Ensure k3s_server_init has been run on
+      the init node first.
   when: _join_token | length == 0
 
 # -----------------------------------------------------------------------

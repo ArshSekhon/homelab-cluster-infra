@@ -16,5 +16,6 @@
   hosts: localhost
   connection: local
   gather_facts: false
+  become: false
   roles:
     - cluster_smoke_tests

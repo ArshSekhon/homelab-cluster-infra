@@ -69,7 +69,7 @@
   until:
     - kube_system_status.rc == 0
     - kube_system_status.stdout_lines | length > 0
-    - kube_system_status.stdout_lines | reject('search', 'Running\\|Succeeded') | list | length == 0
+    - kube_system_status.stdout_lines | reject('search', 'Running') | reject('search', 'Succeeded') | list | length == 0
   changed_when: false
 
 - name: Display kube-system pod status

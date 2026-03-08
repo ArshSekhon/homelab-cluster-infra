@@ -16,26 +16,32 @@
 - name: Initialize k3s first server
   hosts: k3s_servers
   become: true
-  when: k3s_role == "init"
-  roles:
-    - k3s_server_init
+  tasks:
+    - name: Run k3s_server_init role
+      ansible.builtin.include_role:
+        name: k3s_server_init
+      when: k3s_role == "init"
 
 # Play 3: Join additional k3s servers (one at a time)
 - name: Join k3s additional servers
   hosts: k3s_servers
   become: true
   serial: 1
-  when: k3s_role == "join"
-  roles:
-    - k3s_server_join
+  tasks:
+    - name: Run k3s_server_join role
+      ansible.builtin.include_role:
+        name: k3s_server_join
+      when: k3s_role == "join"
 
 # Play 4: Export and rewrite kubeconfig from init node
 - name: Export kubeconfig
   hosts: k3s_servers
   become: true
-  when: k3s_role == "init"
-  roles:
-    - kubeconfig_export
+  tasks:
+    - name: Run kubeconfig_export role
+      ansible.builtin.include_role:
+        name: kubeconfig_export
+      when: k3s_role == "init"
 
 # Play 5: Bootstrap SOPS age decryption secret for Flux
 # Must run after k3s is up but before Flux bootstrap.
@@ -43,9 +49,11 @@
 - name: Bootstrap SOPS age secret
   hosts: k3s_servers
   become: true
-  when: k3s_role == "init"
-  roles:
-    - sops_bootstrap
+  tasks:
+    - name: Run sops_bootstrap role
+      ansible.builtin.include_role:
+        name: sops_bootstrap
+      when: k3s_role == "init"
 
 # ---------------------------------------------------------------------------
 # Flux bootstrap (manual step)
