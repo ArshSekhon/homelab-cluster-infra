@@ -5,12 +5,12 @@
 creation_rules:
   # Ansible vault — encrypted variables (tokens, passwords, credentials)
   - path_regex: bootstrap/ansible/inventory/group_vars/vault\.yaml$
-    age: "AGE-PUBLIC-KEY"
+    age: "age1x9268d9ajjk83wyen9w4kpzzk2gaxgl57cevmdy6lzvdurz48q4q9tws7x"
 
   # Kubernetes Secret manifests in the gitops tree
   - path_regex: gitops/.*secret.*\.yaml$
-    age: "AGE-PUBLIC-KEY"
+    age: "age1x9268d9ajjk83wyen9w4kpzzk2gaxgl57cevmdy6lzvdurz48q4q9tws7x"
 
   # Catch-all for any SOPS-encrypted files not matched above
   - path_regex: \.enc\.yaml$
-    age: "AGE-PUBLIC-KEY"
+    age: "age1x9268d9ajjk83wyen9w4kpzzk2gaxgl57cevmdy6lzvdurz48q4q9tws7x"

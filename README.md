@@ -89,13 +89,24 @@ Boot each node. cloud-init runs on first boot, sets hostname/users/kernel/packag
 
 ```bash
 age-keygen -o bootstrap/ansible/age.key
-# Copy the public key into .sops.yaml (replace AGE-PUBLIC-KEY)
 ```
+
+Copy the public key (the `age1xxx...` line printed to stdout) into `.sops.yaml`, replacing the placeholder. Then tell SOPS where the private key lives:
+
+```bash
+export SOPS_AGE_KEY_FILE=bootstrap/ansible/age.key
+```
+
+Add this to your `~/.zshrc` so it persists across sessions.
 
 ### 3. Configure vault secrets
 
 ```bash
-# Edit and encrypt the vault file
+# Generate a random k3s cluster join token
+openssl rand -hex 32
+
+# Open the vault file (decrypts on open, re-encrypts on save)
+# Replace CHANGE_ME_BEFORE_ENCRYPTING with the token from above
 sops bootstrap/ansible/inventory/group_vars/vault.yaml
 ```
 

@@ -1,17 +1,30 @@
----
-# Encrypted secrets for k3s cluster bootstrap
+#ENC[AES256_GCM,data:nLj/AXFZF/z7fAJFY/Nc8JnKByQ43Jr8newxzyZv1Or0jNtkQBprPopX20g=,iv:VWJvM15UXqHjF14eddXNA4MGeH/g/Lywk8eWmwg4k+I=,tag:NiXS+GGzrolcg8f32ZxzTQ==,type:comment]
 #
-# This file MUST be encrypted with SOPS before committing to Git.
-# Encryption uses age keys as configured in .sops.yaml at the repo root.
+#ENC[AES256_GCM,data:14MuO1Y3sFqu7e184fa1OYHCbJWd12Wwf3zhb1dwad7LCeMG0wCROouOwXC/yfiF1sLXGSYkpMn+wFUReuGeag==,iv:Mc2aPopummHK/kUrhM7JA3xcXcZ3DHQhCVuPFSKrrfU=,tag:TGp55VUsVJolRb1/RmgSdw==,type:comment]
+#ENC[AES256_GCM,data:klZ/6RCjU4tWm44uCwOEfy6Ec5d/anhkvQUXuP2uqkPZKPyT6E3e/5+hMUKoo516ZwY0mmq3k1zl7rHXV1Sc86FCcGohAWA=,iv:5EJQkVGvtAXprJt+JWDYL2gsmqfa1wlvHWjC4lU3vsA=,tag:fxolndjh2qiquXjucpxh9g==,type:comment]
 #
-# To encrypt:
-#   sops --encrypt --in-place bootstrap/ansible/inventory/group_vars/vault.yaml
+#ENC[AES256_GCM,data:knCUxlbgMwaMh0Kh,iv:TCSoDflVmUKM73dKPNuss6gs0gt/h7whQnW7ONe6yio=,tag:STKIiXNFYX9CRzos61NSAQ==,type:comment]
+#ENC[AES256_GCM,data:pwwnEgdhczpGP0YNZzbTXAvT2BNe4KXcdrDKk80MOG26++BVTpEknIDYuh0n1jIB03WxenBo6nTiZdELtICFxVE9qPxIYz6mC3G/fDJb,iv:DxRZ4ckIy1t0Hds/As1B3+abq/3n+a7sXE8p73gXRuU=,tag:8pCCBEfYs+QO2XjdbCg4jQ==,type:comment]
 #
-# To edit (decrypts in-place, re-encrypts on save):
-#   sops bootstrap/ansible/inventory/group_vars/vault.yaml
+#ENC[AES256_GCM,data:2a/ZsRDTeRCjC5rbH+ti+rm7HUFc2FJrE6QQEgyLPo2zLk2whkpPNTz+575Jo8mI/LE=,iv:rTnz6iP1CboRwNMlQCfNp698GPImc1qcotyt8WPjtTI=,tag:FQz7WCBv34ZRyQ7KsoKM+A==,type:comment]
+#ENC[AES256_GCM,data:3mrRnaMBnA7nAJYWNwBxElBnj9kvkY6VVUDsD/y08ZqbpGq3782aoJjsKUwlufSxDgDKRc8jXcAH,iv:HSb6neL0ZGKciUG3NGGtctneC7HtQtNJAwudC2/s/tY=,tag:pxcOehByIF2ASWpomDFRMg==,type:comment]
 #
-# To decrypt (for debugging only — do NOT commit the decrypted file):
-#   sops --decrypt bootstrap/ansible/inventory/group_vars/vault.yaml
-
-# k3s cluster join token — shared secret for node authentication
-vault_k3s_token: "CHANGE_ME_BEFORE_ENCRYPTING"
+#ENC[AES256_GCM,data:5ahJM+ud5Wi7JGImAnl2ChwkmN2GgihAIeChWXDdn1w4jPu6z4EgoUlrlA06tW8R5UjV+38JoS/tR5+yjKBI9RK0sn6j4A==,iv:Em0PXI9T+KXiSjVI2tJr+xzUtMwJWE8VOCBqbU1BgpA=,tag:x0AIEdVCMNAkRVonajuVeg==,type:comment]
+#ENC[AES256_GCM,data:y59pt0FDZ+pzOi8oQmrAyRWEiHky5HWJBWmgQ39cACA83Pm21s3rWNO2R4PwSxIvkPv4+3C/aT4KuY/j/5Yg5BTA3A==,iv:9/f+BU6Lh6rMijLbiSKADx9jm+GQ3ShlAPTZt6qIf8Q=,tag:pa/sBIvS1ZRdEfRRQ6Euhg==,type:comment]
+#ENC[AES256_GCM,data:X6phctki3Njk+2aTTobC66X+0T9L6mAJCY1gibuvdnEqeLbctN2+MpvGtvpSKHjEUpCxCn4rtjDscJPWNUlNyEU=,iv:fomBd2SI/HZp6H42NTpyosaRo0g82Kt8htSir7u3ZJ4=,tag:fRu7YgNt0ghNmnKPt3WcRw==,type:comment]
+vault_k3s_token: ENC[AES256_GCM,data:BNJ+3YiybIEQREHbCkVKz9YzWfGkLMTMWu7hsaZz0ypFRNn1Jc8neJQLju5tHeNLrYFRhnTlHem4q6ig/rUCJw==,iv:LuCMSvgsRYTKzJugPpWr7uBtP929f4KFQH31uopboFM=,tag:wvNFCmhyf2nm8Q3l3lL7Qg==,type:str]
+sops:
+    age:
+        - recipient: age1x9268d9ajjk83wyen9w4kpzzk2gaxgl57cevmdy6lzvdurz48q4q9tws7x
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsaFN1eVh6Vkd3LzdRZFFB
+            QUNacnh0MEtIODlWU0NOV2dITzFTemFPTmtBCk0wTEhyVDRZclJhL3lyRjNVNWgv
+            dmdKQ2hKdHliazN3dFNxTnc0WlpLVXcKLS0tIDNyUWZNMmtHYkZ1L292alhieXZM
+            OWNBRUMveHZ2WEFWZURtYnZEa0svbm8KVt4yJ/D5LuBGtG/yIW4M9b6B+BAaopKE
+            9ED7Zv2gFG2477C1PJO5kXx783eSl2qnE6syaZOyPq4lOqwCLjZ+jA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-03-08T22:13:57Z"
+    mac: ENC[AES256_GCM,data:FSKXUaiH81Ic1A2yc1SFWD5Hvc5YgmWgAs2Uim7sDJwIDNUkLOX1U/HHEkTgLftnTn6pJpFVPmNIDJqdI4Ni2GnZ5E/Kwmxwm0oWiqpLFYiPqygf+Z67J3jKvCih27xVxMtjiEtcHgkA6Ty05ZTJhuHuGOJ7waiU2xXllzY7FFA=,iv:3Qwvcf0RaxgxoHFKo8/PqO+o6Mv4t4lYZ8sWS2qZQ/E=,tag:eVwgJFE5w9gLQlgVx0g8Lg==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.12.1
