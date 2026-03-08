@@ -72,23 +72,32 @@ docs/                        # Runbooks and reference docs
 
 ## Quick Start
 
-### 1. Generate SOPS age key
+### 1. Apply cloud-init
+
+Flash each node's cloud-init config via USB, PXE, or your provisioning method:
+
+```bash
+# Validate configs before flashing (optional)
+cloud-init schema --config-file bootstrap/cloud-init/node-0.yaml
+```
+
+SSH keys are imported automatically from `github.com/arshsekhon.keys` on first boot — no manual key editing needed.
+
+Boot each node. cloud-init runs on first boot, sets hostname/users/kernel/packages, and reboots. Wait for all 3 nodes to come back up before proceeding.
+
+### 2. Generate SOPS age key
 
 ```bash
 age-keygen -o bootstrap/ansible/age.key
 # Copy the public key into .sops.yaml (replace AGE-PUBLIC-KEY)
 ```
 
-### 2. Configure vault secrets
+### 3. Configure vault secrets
 
 ```bash
 # Edit and encrypt the vault file
 sops bootstrap/ansible/inventory/group_vars/vault.yaml
 ```
-
-### 3. Apply cloud-init
-
-Flash each node's cloud-init config (`bootstrap/cloud-init/node-{0,1,2}.yaml`) via your provisioning method (USB, PXE, cloud-init datasource).
 
 ### 4. Run Ansible
 
