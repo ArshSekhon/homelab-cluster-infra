@@ -32,8 +32,8 @@ spec:
       # Node scheduling — prefer nodes with more storage
       replicaAutoBalance: best-effort
     persistence:
-      # Disable Longhorn's built-in default StorageClass — we define our own
       defaultClass: false
+      defaultClassReplicaCount: 2
     ingress:
       enabled: true
       host: longhorn.cluster.arpa
