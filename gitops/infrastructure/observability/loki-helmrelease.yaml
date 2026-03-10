@@ -37,6 +37,7 @@ spec:
         compaction_interval: 10m
         retention_delete_delay: 2h
         retention_delete_worker_count: 150
+        delete_request_store: filesystem
       schemaConfig:
         configs:
           - from: "2024-01-01"
