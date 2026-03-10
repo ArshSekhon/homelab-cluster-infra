@@ -5,7 +5,6 @@ namespace: monitoring
 resources:
   - namespace.yaml
   - helmrelease.yaml
-  - alerting-rules.yaml
   - loki-helmrelease.yaml
   - promtail-helmrelease.yaml
   - loki-datasource.yaml

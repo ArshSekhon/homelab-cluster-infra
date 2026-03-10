@@ -1,0 +1,23 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: custom-alerting-rules
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: node-disk-usage
+      rules:
+        - alert: NodeDiskUsageAbove70Percent
+          expr: |
+            (1 - node_filesystem_avail_bytes{mountpoint="/", fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/", fstype!="tmpfs"}) * 100 > 70
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Disk usage above 70% on {{ $labels.instance }}"
+            description: >-
+              Node {{ $labels.instance }} root filesystem usage is
+              {{ printf "%.1f" $value }}% which exceeds the 70% threshold.
