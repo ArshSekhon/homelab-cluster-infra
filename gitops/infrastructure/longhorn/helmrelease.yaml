@@ -29,11 +29,18 @@ spec:
       storageMinimalAvailablePercentage: "25"
       # Default replica count for volumes without explicit StorageClass override
       defaultReplicaCount: 2
-      # Node scheduling — prefer nodes with more storage
-      replicaAutoBalance: best-effort
     persistence:
-      defaultClass: false
+      defaultClass: true
       defaultClassReplicaCount: 2
+      defaultFsType: ext4
+      reclaimPolicy: Delete
+      defaultDataLocality: disabled
+      defaultStaleReplicaTimeout: "2880"
+      recurringJobSelector:
+        enable: true
+        jobList:
+          - '{"name":"snapshot-daily","isGroup":false}'
+          - '{"name":"backup-weekly","isGroup":false}'
     ingress:
       enabled: true
       host: longhorn.cluster.arpa
