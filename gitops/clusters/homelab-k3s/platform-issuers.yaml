@@ -2,19 +2,18 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: data-services
+  name: platform-issuers
   namespace: flux-system
 spec:
-  suspend: true
   interval: 10m
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: gitops/data-services/
+  path: gitops/infrastructure/cert-manager-issuers
   prune: true
   wait: true
   dependsOn:
-    - name: storage
+    - name: platform-core
   decryption:
     provider: sops
     secretRef:
