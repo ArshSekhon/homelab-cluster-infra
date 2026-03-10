@@ -4,4 +4,3 @@ resources:
   - cert-manager
   - ingress-nginx
   - metallb
-  - network-policies
